@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>BITAS</title>
+  </head>
+  <body>
+    <h1>NOTAS</h1>
+    <table>
+      <thead>
+        <th>ID</th>
+        <th>Tarea</th>
+        <th>Hecha?</th>
+      </thead>
+      <tbody id="notes">
+
+      </tbody>
+    </table>
+    <script type="text/javascript">
+      let table = document.getElementById('notes');
+      fetch('http://localhost:3000/notes')
+      .then(res => res.json())
+      .then(data => {
+        for (let note of data) {
+          let row = document.createElement('tr');
+          delete note.__v;
+          for (let key in note) {
+            let cell = document.createElement('td');
+            cell.textContent = note[key];
+            row.append(cell);
+          }
+        }
+      })
+    </script>
+    <script src="../index.js" charset="utf-8"></script>
+  </body>
+</html>
