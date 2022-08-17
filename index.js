@@ -1,9 +1,9 @@
-// si está la línea type: module; podes usar esta forma
-import express from 'express'
-import mongoose from 'mongoose'
+// imports
+import express from 'express';
+import mongoose from 'mongoose';
 // config vars
 const PORT = process.env.PORT || 3000;
-const DB   = process.env.DB   || 'mongo://localhost/notes'
+const DB   = process.env.DB   || 'mongodb://127.0.0.1/notes';
 
 mongoose.connect(DB)
   .then(() => console.log('DB conectada'))
@@ -11,32 +11,54 @@ mongoose.connect(DB)
 
 const NoteSchema = new mongoose.Schema({
   text: String,
-  done: Boolean
+  done: { type: Boolean, default: false }
 });
 const Note = mongoose.model('Note', NoteSchema);
 
 const notes = [];
+// base de datos de mentira
+// const notes = [
+//   {
+//     id: 1,
+//     text: 'Lavar la ropa',
+//     done: false
+//   },
+//   {
+//     id: 2,
+//     text: 'Estudiar node',
+//     done: false
+//   },
+//   {
+//     id: 3,
+//     text: 'Hacer las compras',
+//     done: false
+//   },
+//   {
+//     id: 4,
+//     text: 'Preparar los examenes',
+//     done: false
+//   }
+// ];
+
+
 const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 
 // en una API que devuelve JSON
-// la que se dice una API REST
+// lo que se dice una API REST
 // GET para leer datos
 // POST para crear datos
 // PUT para modificar
-// DETELE para borrar
+// DELETE para borrar
 
+// devuelve todas las notas
 app.get('/notes', (req, res) => {
-  res.status(200).json(notes);
+  Note.find((err, notes) => {
+    res.status(200).json(notes);
+  });
 });
-app.get('/notes/:id', (req, res) => {
-  //res.send('Acá te pasa la nota con id' + req.params.id);
-  let id = +req.params.id;
-  let result = notes.filter(note => note.id === id);
-  res.status(200).json(result);
-});
-
+// devuelve la nota con id: id
 app.get('/notes/:id', (req, res) => {
   let id = req.params.id;
   Note.findById(id, (err, note) => {
@@ -44,13 +66,11 @@ app.get('/notes/:id', (req, res) => {
   });
   // let result = notes.filter(note => note.id === id);
 });
-// app.post('/notes/123', (req, res) => {
-//   res.status(404).json({ msg: 'bien pibe' });
-// });
+// crea una nota nueva
 app.post('/notes', (req, res) => {
-  let {id, text, done} = req.body;
+  let { text } = req.body;
   console.log(req.body);
-  let newNote = new Note({ text, done });
+  let newNote = new Note({ text });
   // notes.push(newNote);
   newNote.save((err, note) => {
     // if (err) throw err;
@@ -59,5 +79,5 @@ app.post('/notes', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server escuchando en puerto ${PORT}`)
+  console.log(`Server escuchando en puerto ${PORT}`);
 });
